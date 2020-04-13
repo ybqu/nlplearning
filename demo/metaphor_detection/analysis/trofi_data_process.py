@@ -14,7 +14,7 @@ if __name__ == "__main__":
     """ 处理数据 """
     raw_analysis_vua = [] # [[sen_ix, label_seq, pos_seq], ..., ]
 
-    with open('./data/TroFi/TroFi_formatted_all3737.csv', encoding='latin-1') as f:
+    with open('../data/TroFi/TroFi_formatted_all3737.csv', encoding='latin-1') as f:
         lines = csv.reader(f)
         next(lines)
         for line in lines:

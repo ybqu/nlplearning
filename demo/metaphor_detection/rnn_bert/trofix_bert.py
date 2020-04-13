@@ -36,7 +36,7 @@ pos_set = set()
 raw_train_vua = [] # [[sen_ix, label_seq, pos_seq], ..., ]
 raw_val_vua = []
 
-with open('./data/TroFi-X/TroFi-X_formatted_svo.csv', encoding='latin-1') as f:
+with open('../data/TroFi-X/TroFi-X_formatted_svo.csv', encoding='latin-1') as f:
     lines = csv.reader(f)
     next(lines)
     for line in lines:

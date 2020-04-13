@@ -30,7 +30,7 @@ model = BertForMaskedLM.from_pretrained(model_dir, config=config)
 
 """ 读取数据 """
 raw_analysis_vua = []
-with open('./vua_masked.csv', encoding='latin-1') as f:
+with open('../../analysis/vua_masked.csv', encoding='latin-1') as f:
     lines = csv.reader(f)
     # next(lines)
     for line in lines:

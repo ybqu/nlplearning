@@ -36,7 +36,7 @@ pos_set = set()
 raw_train_vua = [] # [[sen_ix, label_seq, pos_seq], ..., ]
 raw_val_vua = []
 
-with open('./data/VUAsequence/VUA_seq_formatted_train.csv', encoding='latin-1') as f:
+with open('../data/VUAsequence/VUA_seq_formatted_train.csv', encoding='latin-1') as f:
     lines = csv.reader(f)
     next(lines)
     for line in lines:
@@ -47,7 +47,7 @@ with open('./data/VUAsequence/VUA_seq_formatted_train.csv', encoding='latin-1') 
         raw_train_vua.append([line[2], label_seq, pos_seq])
         pos_set.update(pos_seq)
 
-with open('./data/VUAsequence/VUA_seq_formatted_val.csv', encoding='latin-1') as f:
+with open('../data/VUAsequence/VUA_seq_formatted_val.csv', encoding='latin-1') as f:
     lines = csv.reader(f)
     next(lines)
     for line in lines:

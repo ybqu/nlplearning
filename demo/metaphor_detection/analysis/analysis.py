@@ -15,7 +15,7 @@ import math
 
 def main():
     mask_list = []
-    with open('./trofix_maskedlm.out', 'r+', encoding='utf-8') as f:
+    with open('../mlm/metaphor/trofix_maskedlm.out', 'r+', encoding='utf-8') as f:
         lines = f.readlines()
         lines = lines[5413: ]
         for line in lines:
