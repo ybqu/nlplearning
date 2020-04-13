@@ -40,15 +40,15 @@ with open('../../analysis/vua_masked.csv', encoding='latin-1') as f:
 pos_list = []
 for k, vua in enumerate(raw_analysis_vua):
     # sentence = input('sentence:')
-    print('\n============= SENTENCE ' + str(k + 1) + ' =============')
+    # print('\n============= SENTENCE ' + str(k + 1) + ' =============')
     sentence = vua[0]
     m_sentence = vua[2]
     sen_list = sentence.split(' ')
     m_sen_list = m_sentence.split(' ')
     m_token = [sen_list[i] for i, token in enumerate(m_sen_list) if token == '[MASK]']
     
-    print('ORIGINAL >> ' + sentence)
-    print('MASKED   >> ' + m_sentence)
+    # print('ORIGINAL >> ' + sentence)
+    # print('MASKED   >> ' + m_sentence)
 
     input_ids = torch.tensor(tokenizer.encode(m_sentence, add_special_tokens=True)).unsqueeze(0)
 
@@ -80,8 +80,8 @@ for k, vua in enumerate(raw_analysis_vua):
         for j, indices in enumerate(indices_list):
             mask_indices[i][j] = tokenizer.decode(indices).replace(' ', '')
     
-    print('\n预测：')
-    print('{:12} {:5} {} \n'.format('MASKED_TOKEN', 'INDEX', 'TOP30'))
+    # print('\n预测：')
+    # print('{:12} {:5} {} \n'.format('MASKED_TOKEN', 'INDEX', 'TOP30'))
     for i, indices in enumerate(mask_indices):
         try:
             index = indices.index(m_token[i])
@@ -89,7 +89,7 @@ for k, vua in enumerate(raw_analysis_vua):
             index = -1
         temp = [m_token[i], index]
         pos_list.append(temp)
-        print('{:12} {:5} {}'.format(m_token[i], index, ','.join(indices[:30])))
+        # print('{:12} {:5} {}'.format(m_token[i], index, ','.join(indices[:30])))
 
 print('\n' + '*'*100)
 print('([MASK] INDEX) 共 {} 条数据：\n'.format(len(pos_list)))
