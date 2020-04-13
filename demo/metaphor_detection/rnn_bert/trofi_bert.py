@@ -48,7 +48,7 @@ with open('./data/TroFi/TroFi_formatted_all3737.csv', encoding='latin-1') as f:
 # 随机打乱数组
 random.shuffle(raw_trofi)
 
-raw_train_trofi, raw_test_trofi = train_test_split(raw_trofi, test_size=0.2, random_state=r);
+raw_train_trofi, raw_test_trofi = train_test_split(raw_trofi, test_size=0.2, random_state=r)
 
 # sen_ix, label_seq, pos_seq
 tr_sentences = [r[0] for r in raw_train_trofi]
