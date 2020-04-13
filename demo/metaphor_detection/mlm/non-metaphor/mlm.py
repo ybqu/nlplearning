@@ -39,17 +39,21 @@ with open('../../analysis/vua_masked.csv', encoding='latin-1') as f:
         raw_analysis_vua.append([line[0], label_seq, line[2]])
 
 pos_list = []
+
+ # print('\n预测：')
+print('{:10} {:10} {:10} {:10} {:20} {;20} {:20} \n'.format('MASKED_TOKEN', 'INDEX', 'TOP50', 'MTOP50', '0 - 10000(50)', '10001 - 20000(50)', '20001 - 30000(50)'))
+
 for k, vua in enumerate(raw_analysis_vua):
     # sentence = input('sentence:')
-    print('\n============= SENTENCE ' + str(k + 1) + ' =============')
+    # print('\n============= SENTENCE ' + str(k + 1) + ' =============')
     sentence = vua[0]
     m_sentence = vua[2]
     sen_list = sentence.split(' ')
     m_sen_list = m_sentence.split(' ')
     m_token = [sen_list[i] for i, token in enumerate(m_sen_list) if token == '[MASK]']
     
-    print('ORIGINAL >> ' + sentence)
-    print('MASKED   >> ' + m_sentence)
+    # print('ORIGINAL >> ' + sentence)
+    # print('MASKED   >> ' + m_sentence)
 
     input_ids = torch.tensor(tokenizer.encode(m_sentence, add_special_tokens=True)).unsqueeze(0)
 
@@ -88,8 +92,6 @@ for k, vua in enumerate(raw_analysis_vua):
     # random_num5 = [random.randint(20001,25000) for i in range(30)]
     # random_num6 = [random.randint(25001,30000) for i in range(30)]
     
-    print('\n预测：')
-    print('{:10} {:10} {:10} {:10} {:20} {;20} {:20} \n'.format('MASKED_TOKEN', 'INDEX', 'TOP50', 'MTOP50', '0 - 10000(50)', '10001 - 20000(50)', '20001 - 30000(50)'))
     for i, indices in enumerate(mask_indices):
         try:
             index = indices.index(m_token[i])
