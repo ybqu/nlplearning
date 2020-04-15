@@ -29,9 +29,15 @@ config = BertConfig.from_pretrained(model_dir + '/config.json')
 tokenizer = BertTokenizer.from_pretrained(model_dir)
 model = BertForMaskedLM.from_pretrained(model_dir, config=config)
 
+""" 词表 """
+with open('../../analysis/EnWords.csv', encoding='latin-1') as f:
+        lines = csv.reader(f)
+        next(lines)
+        vocab = {line[0]:i for i, line in enumerate(lines)}
+
 """ 读取数据 """
 raw_analysis_vua = []
-with open('../../analysis/vua_masked.csv', encoding='latin-1') as f:
+with open('../../analysis/trofix_masked.csv', encoding='latin-1') as f:
     lines = csv.reader(f)
     # next(lines)
     for line in lines:
@@ -39,9 +45,6 @@ with open('../../analysis/vua_masked.csv', encoding='latin-1') as f:
         raw_analysis_vua.append([line[0], label_seq, line[2]])
 
 pos_list = []
-
- # print('\n预测：')
-print('{:10} {:10} {:10} {:10} {:20} {;20} {:20} \n'.format('MASKED_TOKEN', 'INDEX', 'TOP50', 'MTOP50', '0 - 10000(50)', '10001 - 20000(50)', '20001 - 30000(50)'))
 
 for k, vua in enumerate(raw_analysis_vua):
     # sentence = input('sentence:')
@@ -85,28 +88,30 @@ for k, vua in enumerate(raw_analysis_vua):
         for j, indices in enumerate(indices_list):
             mask_indices[i][j] = tokenizer.decode(indices).replace(' ', '')
 
-    random_num1 = [random.randint(0,10000) for i in range(50)]
-    random_num2 = [random.randint(10001,20000) for i in range(50)]
-    random_num3 = [random.randint(20001,30000) for i in range(50)]
-    # random_num4 = [random.randint(15001,20000) for i in range(30)]
-    # random_num5 = [random.randint(20001,25000) for i in range(30)]
-    # random_num6 = [random.randint(25001,30000) for i in range(30)]
-    
     for i, indices in enumerate(mask_indices):
+        # 随机抽取50词
+        sample = random.sample(indices, k=50)
+        # 过滤掉非单词
+        sample = [w for w in sample if re.match(r'^[a-zA-Z]+$', w) and w in vocab]
+
+        word_temp = []
+        index_temp = []
+
         try:
             index = indices.index(m_token[i])
         except:
             index = -1
-        temp = [m_token[i], index]
-        pos_list.append(temp)
-        top50 = [indices[i] for i in range(50) if re.match(r'^[a-zA-Z]+$', indices[i])]
-        mtop50 = [indices[index - 50 + i] for i in range(50) if re.match(r'^[a-zA-Z]+$', indices[index - 50 + i])]
-        sample1 = [indices[i] for i in random_num1 if re.match(r'^[a-zA-Z]+$', indices[i])]
-        sample2 = [indices[i] for i in random_num2 if re.match(r'^[a-zA-Z]+$', indices[i])]
-        sample3 = [indices[i] for i in random_num3 if re.match(r'^[a-zA-Z]+$', indices[i])]
-        print('{} {} {} {} {} {} {}'.format(m_token[i], index, ','.join(top50), ','.join(mtop50), ','.join(sample1), ','.join(sample2), ','.join(sample3)))
 
-print('\n' + '*'*100)
-print('([MASK] INDEX) 共 {} 条数据\n'.format(len(pos_list)))
-# for i, info in enumerate(pos_list):
-#     print(' '.join(info))
+        word_temp.append(m_token[i])
+        index_temp.append(str(index))
+
+        for w in sample:
+            word_temp.append(w)
+            index_temp.append(str(indices.index(w)))
+
+        temp = [','.join(word_temp), ','.join(index_temp)]
+        pos_list.append(' '.join(temp))
+
+print('共 {} 条数据\n'.format(len(pos_list)))
+print('{:20} {:10} {:30}'.format('Random sampling', 'Index', '(The first is a metaphorical word)'))
+print('\n'.join(pos_list))
