@@ -165,11 +165,10 @@ def main():
         temp = [verb, str(index)]
         nonmeta_poss.append(','.join(temp))
     
+    print('隐喻词:{},非隐喻词:{}'.format(len(meta_poss), len(nonmeta_poss)))
     print("{} {}".format('word', 'index'))
     print('\n'.join(meta_poss))
-    print('共 {} 个隐喻词'.format(len(meta_poss)))
     print('\n'.join(nonmeta_poss))
-    print('共 {} 个非隐喻词'.format(len(nonmeta_poss)))
 
 
 if __name__ == "__main__":
