@@ -47,20 +47,27 @@ def main():
     meta_indexs.sort()
     nonmeta_indexs.sort()
 
-    meta_slice = math.ceil(meta_indexs[len(meta_indexs) - 1] / 1000)
-    meta_slice_list = [i*1000 - 1 for i in range(meta_slice + 1)]
-    nonmeta_slice = math.ceil(nonmeta_indexs[len(nonmeta_indexs) - 1] / 1000)
-    nonmeta_slice_list = [i*1000 - 1 for i in range(nonmeta_slice + 1)]
+    # meta_slice = math.ceil(meta_indexs[len(meta_indexs) - 1] / 1000)
+    # meta_slice_list = [i*1000 - 1 for i in range(meta_slice + 1)]
+    # nonmeta_slice = math.ceil(nonmeta_indexs[len(nonmeta_indexs) - 1] / 1000)
+    # nonmeta_slice_list = [i*1000 - 1 for i in range(nonmeta_slice + 1)]
+
+    meta_slice_list = [i * 100 -1 for i in range(11)]
+    nonmeta_slice_list = [i * 100 -1 for i in range(11)]
 
     meta_poss = [0]
     nonmeta_poss = [0]
 
     for i, mask in enumerate(meta_indexs):
+        if mask > 998:
+            continue
         while mask > meta_slice_list[0]:
             meta_poss.append(i)
             del meta_slice_list[0]
 
     for i, mask in enumerate(nonmeta_indexs):
+        if mask > 998:
+            continue
         while mask > nonmeta_slice_list[0]:
             nonmeta_poss.append(i)
             del nonmeta_slice_list[0]
@@ -76,7 +83,7 @@ def main():
     for i, length in enumerate(meta_lengths):
         if i == 0:
             continue
-        print('{:5} ~ {:5}: {}'.format((i-1)*1000, i*1000 - 1, length))
+        print('{:5} ~ {:5}: {}'.format((i-1)*100, i*100 - 1, length))
 
     print('平均排名：{}'.format(sum(meta_indexs) / len(meta_indexs)))
 
@@ -85,7 +92,7 @@ def main():
     for i, length in enumerate(nonmeta_lengths):
         if i == 0:
             continue
-        print('{:5} ~ {:5}: {}'.format((i-1)*1000, i*1000 - 1, length))
+        print('{:5} ~ {:5}: {}'.format((i-1)*100, i*100 - 1, length))
 
     print('平均排名：{}'.format(sum(nonmeta_indexs) / len(nonmeta_indexs)))
 
