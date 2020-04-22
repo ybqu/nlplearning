@@ -146,5 +146,4 @@ _pycache_/*
 glove.840B.300d.zip
 elmo/
 *_masked.csv
-TransMetaJointDatasets.zip
-A Knowledge Graph Embedding Approach for Metaphor.pdf
+others/
