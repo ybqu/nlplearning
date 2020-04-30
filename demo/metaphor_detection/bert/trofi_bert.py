@@ -120,8 +120,8 @@ valid_dataloader = DataLoader(valid_data, sampler=valid_sampler, batch_size=batc
 """
 8. 模型训练
 """
-config = BertConfig.from_pretrained('/home/ybqu/sources/bert-base-uncased/config.json')
-model = BertForTokenClassification.from_pretrained('/home/ybqu/sources/bert-base-uncased', config=config)
+config = BertConfig.from_pretrained('/home/ybqu/model/bert-base-uncased/config.json')
+model = BertForTokenClassification.from_pretrained('/home/ybqu/model/bert-base-uncased', config=config)
 
 # Move the model to the GPU if available
 if torch.cuda.is_available():
@@ -133,6 +133,7 @@ if torch.cuda.is_available():
 f1: https://blog.csdn.net/qq_37466121/article/details/87719044
 """
 def flat_accuracy(preds, labels):
+    print(preds)
     pred_flat = np.argmax(preds, axis=2).flatten()
     labels_flat = labels.flatten()
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
@@ -207,14 +208,6 @@ for epoch in range(num_epochs):
         optimizer.step()
         model.zero_grad()
     
-    # 保存模型
-    # print('saving model for epoch {}'.format(epoch + 1))
-    # if not os.path.exists(output_dir + 'model_epoch{}'.format(epoch + 1)):
-    #     os.mkdir(output_dir + 'model_epoch{}'.format(epoch + 1))
-    # model_to_save = model.module if hasattr(model, 'module') else model
-    # model_to_save.save_pretrained(output_dir + 'model_epoch{}'.format(epoch + 1))
-    # print('epoch {} finished'.format(epoch + 1))
-
     #打印每个epoch的损失
     print("Train loss: {}".format(tr_loss/nb_tr_steps))
     
@@ -228,18 +221,19 @@ for epoch in range(num_epochs):
         b_input_ids, b_input_mask, b_labels = batch
 
         with torch.no_grad():
-            tmp_eval_loss = model(b_input_ids, token_type_ids=None,
+            outputs = model(b_input_ids, token_type_ids=None,
                                   attention_mask=b_input_mask, labels=b_labels)
-            logits = model(b_input_ids, token_type_ids=None,
-                           attention_mask=b_input_mask)
+            # logits = model(b_input_ids, token_type_ids=None,
+                        #    attention_mask=b_input_mask)
 
-        tmp_eval_loss = tmp_eval_loss[0]
-        logits = logits[0]
+        # tmp_eval_loss = tmp_eval_loss[0]
+        # logits = logits[0]
+        tmp_eval_loss, logits = outputs[:2]
 
         logits = logits.detach().cpu().numpy()#detach的方法，将variable参数从网络中隔离开，不参与参数更新
         label_ids = b_labels.cpu().numpy()
 
-        # print("np.argmax(logits, axis=2)", np.argmax(logits, axis=2))
+        print("np.argmax(logits, axis=2)", np.argmax(logits, axis=2))
 
         predictions.extend([list(p) for p in np.argmax(logits, axis=2)])
         true_labels.append(label_ids)
@@ -255,6 +249,8 @@ for epoch in range(num_epochs):
         eval_recall += tmp_eval_recall
         eval_f1 += tmp_eval_f1
         nb_eval_steps += 1
+
+        break
     
     val_accs.append(eval_accuracy/nb_eval_steps)
     val_ps.append(eval_precision/nb_eval_steps)
@@ -267,6 +263,8 @@ for epoch in range(num_epochs):
     print("Validation Precision: {}".format(val_ps[epoch]))
     print("Validation Recall: {}".format(val_rs[epoch]))
     print("F1-Score: {}".format(val_f1s[epoch]))
+
+    break
 
 # 保存最终模型
 print('='*100)

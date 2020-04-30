@@ -24,7 +24,8 @@ from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from keras.preprocessing.sequence import pad_sequences
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from transformers import BertTokenizer, BertConfig, BertForTokenClassification, AdamW
+from transformers import BertTokenizer, BertConfig, BertForTokenClassification, BertForMaskedLM, AdamW
+from torch import nn
 
 # os.environ['CUDA_VISIBLE_DEVICES']='1'
 
@@ -78,9 +79,11 @@ def main():
         next(lines)
         for line in lines:
             sen = line[3].split(' ')
+            meta_token_pos = sen.index(line[1])
+            sen[meta_token_pos] = '[MASK]'
             label_seq = [0] * len(sen)
-            label_seq[sen.index(line[1])] = int(line[5])
-            raw_trifox.append([line[3], label_seq, sen.index(line[1]), line[3]])
+            label_seq[meta_token_pos] = int(line[5])
+            raw_trifox.append([line[3], label_seq, meta_token_pos, ' '.join(sen)])
 
     # ! 划分数据集 - 训练集 / 测试集
     random.shuffle(raw_trifox)
@@ -94,7 +97,7 @@ def main():
     val_labels = [r[1] for r in raw_val_trofix]
 
     val_verb = [r[2] for r in raw_val_trofix]
-    # sentence = [r[3] for r in raw_val_trofix]
+    mask_sen = [r[3] for r in raw_val_trofix]
 
     """
     ? 2. 设置基本参数
@@ -144,9 +147,12 @@ def main():
     ? 4. 模型训练
     """
     config = BertConfig.from_pretrained(os.path.join(model_dir, 'config.json'))
+    config.output_hidden_states = True
     model = BertForTokenClassification.from_pretrained(model_dir, config=config)
+    masked_model = BertForMaskedLM.from_pretrained(model_dir, config=config)
 
     model.to(device)
+    masked_model.to(device)
 
     # ! 定义 optimizer
     no_decay = ["bias", "LayerNorm.weight"]
@@ -207,11 +213,29 @@ def main():
             batch = tuple(t.to(device) for t in batch)
             b_input_ids, b_input_mask, b_labels = batch
 
+            # masked_input_ids = torch.tensor(tokenizer.encode(mask_sen[step].split())).unsqueeze(0)
+            masked_input_ids = torch.tensor(pad_sequences(torch.tensor(tokenizer.encode(mask_sen[step].split())).unsqueeze(0),
+                              maxlen=max_len, dtype="long", truncating="post", padding="post"))
+            input_mask = torch.tensor([float(i>0) for i in masked_input_ids[0]]).unsqueeze(0)
+
+            masked_input_ids = masked_input_ids.to(device)
+            input_mask = input_mask.to(device)
+
             with torch.no_grad():
                 outputs = model(b_input_ids, token_type_ids=None,
                                       attention_mask=b_input_mask, labels=b_labels)
+                masked_outputs = masked_model(masked_input_ids, masked_lm_labels=masked_input_ids, attention_mask=input_mask)
 
-            tmp_eval_loss, logits = outputs[:2]
+            tmp_eval_loss, logits, hidden_states = outputs[:3]
+            masked_loss, prediction_scores, masked_hidden_states = masked_outputs[:3]
+
+            splice_states = torch.cat((hidden_states[-1], masked_hidden_states[-1]), dim=-1)
+            
+            # ! 定义全连接层
+            connected_layer = nn.Linear(in_features = 1536, out_features = 2)
+            connected_layer.to(device)
+
+            logits = connected_layer(splice_states)
             
             values, logits = torch.max(F.softmax(logits, dim=-1), dim=-1)[:2]
 
@@ -224,7 +248,6 @@ def main():
 
             preds.append(verb_logits)
             labels.append(ture_labels)
-
             nb_eval_steps += 1
             
             eval_loss += tmp_eval_loss.mean().item()
@@ -252,7 +275,7 @@ def main():
 
     logging.info('Training finished')
 
-    print("aver_f1: {}".format(sum(val_f1s) / num_epochs))
+    print("\naver_f1: {}".format(sum(val_f1s) / num_epochs))
     print("aver_precision: {}".format(sum(val_ps) / num_epochs))
     print("aver_recall: {}".format(sum(val_rs) / num_epochs))
     print("aver_accuracy: {}".format(sum(val_accs) / num_epochs))
