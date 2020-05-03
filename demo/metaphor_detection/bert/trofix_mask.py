@@ -229,8 +229,12 @@ def main():
             tmp_eval_loss, logits, hidden_states = outputs[:3]
             masked_loss, prediction_scores, masked_hidden_states = masked_outputs[:3]
 
-            splice_states = torch.cat((hidden_states[-1], masked_hidden_states[-1]), dim=-1)
+            verb_states = hidden_states[-1][:, val_verb[step]]
+            masked_verb_states = masked_hidden_states[-1][:, val_verb[step]]
+            masked_verb_states -= verb_states
             
+            splice_states = torch.cat((verb_states, masked_verb_states), dim=-1)
+            print(splice_states)
             # ! 定义全连接层
             connected_layer = nn.Linear(in_features = 1536, out_features = 2)
             connected_layer.to(device)
@@ -239,7 +243,7 @@ def main():
             
             values, logits = torch.max(F.softmax(logits, dim=-1), dim=-1)[:2]
 
-            verb_logits = logits[:, val_verb[step]]
+            verb_logits = logits
             ture_labels = b_labels[:, val_verb[step]]
 
             # ! detach的方法，将variable参数从网络中隔离开，不参与参数更新
@@ -252,9 +256,12 @@ def main():
             
             eval_loss += tmp_eval_loss.mean().item()
 
+            break
+
         # ! 计算评估值
         preds = np.array(preds)
         labels = np.array(labels)
+        print(preds)
 
         eval_accuracy = flat_accuracy(preds, labels)
         eval_precision = flat_precision(preds, labels)
@@ -272,6 +279,8 @@ def main():
         print("Validation Precision: {}".format(val_ps[epoch]))
         print("Validation Recall: {}".format(val_rs[epoch]))
         print("F1-Score: {}".format(val_f1s[epoch]))
+
+        break
 
     logging.info('Training finished')
 
