@@ -7,7 +7,7 @@
 @Version :   1.0
 @Contact :   2191002033@cnu.edu.cn
 @License :   
-@Desc    :   None
+@Desc    :   使用 MASKED-LM 查看隐喻词和非隐喻词在生成序列位置
 '''
 
 # here put the import lib
