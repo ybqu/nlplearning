@@ -28,13 +28,18 @@ def main():
     """
     ? 1. 设置数据
     """
-    raw_data_trifox = []
-    with open('../data/TroFi-X/TroFi-X_formatted_svo.csv', encoding='latin-1') as f:
+    raw_data = []
+    # with open('../data/TroFi-X/TroFi-X_formatted_svo.csv', encoding='latin-1') as f:
+    #     lines = csv.reader(f)
+    #     next(lines)
+    #     for line in lines:
+    #         sent = line[3].split(' ')
+    #         raw_data.append([line[3], line[1], sent.index(line[1]), int(line[5])])
+    with open('../data/TroFi/TroFi_formatted_all3737.csv', encoding='latin-1') as f:
         lines = csv.reader(f)
         next(lines)
         for line in lines:
-            sent = line[3].split(' ')
-            raw_data_trifox.append([line[3], line[1], sent.index(line[1]), int(line[5])])
+            raw_data.append([line[1], line[0], line[2], int(line[3])])
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -48,7 +53,7 @@ def main():
 
     tp, tn, fp, fn = [], [], [], []
 
-    for step, batch in enumerate(raw_data_trifox):
+    for step, batch in enumerate(raw_data):
         sent, verb, pos, label = batch
 
         input_ids = torch.tensor(tokenizer.encode(sent.split(' '), add_special_tokens=True)).unsqueeze(0)  # Batch size 1
