@@ -148,3 +148,4 @@ elmo/
 *_masked.csv
 Tencent_AILab_ChineseEmbedding.tar.gz
 papers/
+*.txt
