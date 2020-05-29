@@ -141,7 +141,7 @@ cython_debug/
 _pycache_/*
 *.pyc
 *.out
-斯坦福CS224n课程(2019)/
+CS224N-Stanford-Winter-2019/
 统计学习方法第2版/
 glove.840B.300d.zip
 elmo/
