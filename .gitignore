@@ -149,3 +149,5 @@ elmo/
 Tencent_AILab_ChineseEmbedding.tar.gz
 papers/
 *.txt
+codes/comment/data/
+codes/blanklm/data/
