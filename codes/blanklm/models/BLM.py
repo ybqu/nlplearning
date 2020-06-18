@@ -24,17 +24,17 @@ class BLM(nn.Module):
     
     使用transformerEncoder进行map
     """
-    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, dropout=0.5):
+    def __init__(self, ntoken, emsize, nhead, nhidden, nlayers, dropout):
         super(BLM, self).__init__()
         from torch.nn import TransformerEncoder, TransformerEncoderLayer
-        self.model_type = 'BLM'
+        self.model_type = 'Transformer'
         self.src_mask = None
-        self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout)
+        self.pos_encoder = PositionalEncoding(emsize, dropout)
+        encoder_layers = TransformerEncoderLayer(emsize, nhead, nhidden, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.encoder = nn.Embedding(ntoken, ninp)
-        self.ninp = ninp
-        self.decoder = nn.Linear(ninp, ntoken)
+        self.encoder = nn.Embedding(ntoken, emsize)
+        self.emsize = emsize
+        self.decoder = nn.Linear(emsize, ntoken)
 
         self.init_weights()
 
@@ -55,7 +55,7 @@ class BLM(nn.Module):
             mask = self._generate_square_subsequent_mask(len(src)).to(device)
             self.src_mask = mask
 
-        src = self.encoder(src) * math.sqrt(self.ninp)
+        src = self.encoder(src) * math.sqrt(self.emsize)
         src = self.pos_encoder(src)
         output = self.transformer_encoder(src, self.src_mask)
         output = self.decoder(output)
