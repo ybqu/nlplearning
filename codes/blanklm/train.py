@@ -17,6 +17,7 @@ import os
 import math
 import time
 import random
+import logging
 import numpy as np
 import torch
 import torch.nn as nn
@@ -24,6 +25,13 @@ import torchtext
 import argparse
 from torchtext.data.utils import get_tokenizer
 from models.BLM import BLM
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO if args.local_rank in [-1, 0] else logging.WARN,
+)
 
 
 def parse_args():

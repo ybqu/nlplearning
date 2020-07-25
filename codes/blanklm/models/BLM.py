@@ -17,6 +17,8 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from sklearn.neural_network import MLPClassifier
+from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 
 class BLM(nn.Module):
@@ -26,7 +28,6 @@ class BLM(nn.Module):
     """
     def __init__(self, ntoken, emsize, nhead, nhidden, nlayers, dropout):
         super(BLM, self).__init__()
-        from torch.nn import TransformerEncoder, TransformerEncoderLayer
         self.model_type = 'Transformer'
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(emsize, dropout)
@@ -34,6 +35,7 @@ class BLM(nn.Module):
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.encoder = nn.Embedding(ntoken, emsize)
         self.emsize = emsize
+        self.clf = MLPClassifier(alpha=1e-5, hidden_layer_sizes=(nhidden, emsize), random_state=1)
         self.decoder = nn.Linear(emsize, ntoken)
 
         self.init_weights()
@@ -49,7 +51,7 @@ class BLM(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def forward(self, src):
+    def forward(self, src, target):
         if self.src_mask is None or self.src_mask.size(0) != len(src):
             device = src.device
             mask = self._generate_square_subsequent_mask(len(src)).to(device)
