@@ -142,6 +142,7 @@ _pycache_/*
 *.pyc
 *.out
 CS224N-Stanford-Winter-2019/
+CS224N-Stanford-Winter-2017/
 统计学习方法第2版/
 glove.840B.300d.zip
 elmo/
