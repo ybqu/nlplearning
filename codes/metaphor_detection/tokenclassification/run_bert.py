@@ -321,6 +321,7 @@ def main():
 
         preds, labels = [], []
         for step, batch in enumerate(val_dataloader):
+            batch = tuple(torch.tensor(t) for t in batch)
             batch = tuple(t.to(device) for t in batch)
             b_input_ids, b_input_mask, b_labels = batch
 
